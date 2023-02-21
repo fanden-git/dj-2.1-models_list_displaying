@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.core.paginator import Paginator
 from books.models import Book
 
 
@@ -18,16 +17,14 @@ def books_view(request):
 
 
 def book(request, pub_date):
-    obj = Book.objects
     template = 'books/books_list.html'
-
-    paginator = Paginator(obj.all().order_by('pub_date'), 1)
-    page_str = obj.get(pub_date=pub_date).pub_date
-    page = paginator.get_page(page_str)
-    ...
-
+    obj = Book.objects
+    books_objects = obj.filter(pub_date=pub_date)
+    books_next = obj.filter(pub_date__gt=pub_date).order_by('pub_date').first()
+    books_previous = obj.filter(pub_date__lt=pub_date).order_by('-pub_date').first()
     context = {
-        'books': obj.filter(pub_date=pub_date),
-        # 'page': page,
+        'books': books_objects,
+        'next_book': books_next,
+        'previous_book': books_previous,
     }
     return render(request, template, context)
